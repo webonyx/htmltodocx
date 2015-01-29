@@ -1,5 +1,7 @@
 <?php
 
+use PhpOffice\PhpWord\Style\Font;
+
 // Example styles
 // This is an example of how a "style sheet" should be structured
 // to asign PHPWord styles to HTML elements, classes, and inline
@@ -62,11 +64,11 @@ function htmltodocx_styles_example()
                 'size'        => 6,
             ), // Superscript not working in PHPWord
             'u'      => array(
-                'underline' => PHPWord_Style_Font::UNDERLINE_SINGLE,
+                'underline' => Font::UNDERLINE_SINGLE,
             ),
             'a'      => array(
                 'color'     => '0000FF',
-                'underline' => PHPWord_Style_Font::UNDERLINE_SINGLE,
+                'underline' => Font::UNDERLINE_SINGLE,
             ),
             'table'  => array(
                 // Note that applying a table style in PHPWord applies the relevant style to
@@ -94,7 +96,7 @@ function htmltodocx_styles_example()
     $styles['classes'] =
         array(
             'underline' => array(
-                'underline' => PHPWord_Style_Font::UNDERLINE_SINGLE,
+                'underline' => Font::UNDERLINE_SINGLE,
             ),
             'purple'    => array(
                 'color' => '901391',
@@ -110,7 +112,7 @@ function htmltodocx_styles_example()
     $styles['inline'] =
         array(
             'text-decoration: underline' => array(
-                'underline' => PHPWord_Style_Font::UNDERLINE_SINGLE,
+                'underline' => Font::UNDERLINE_SINGLE,
             ),
             'vertical-align: left'       => array(
                 'align' => 'left',
