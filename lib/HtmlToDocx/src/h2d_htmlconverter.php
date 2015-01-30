@@ -81,7 +81,6 @@ function htmltodocx_html_allowed_children($tag = NULL)
  */
 function htmltodocx_clean_text($text)
 {
-
     // Replace each &nbsp; with a single space:
     $text = str_replace('&nbsp;', ' ', $text);
     if (strpos($text, '<') !== FALSE) {
@@ -94,7 +93,9 @@ function htmltodocx_clean_text($text)
     $text = preg_replace('/\s+/u', ' ', $text);
 
     // Convert entities:
-    $text = html_entity_decode($text, ENT_COMPAT, 'UTF-8');
+    //$text = html_entity_decode($text, ENT_COMPAT, 'UTF-8');
+    $text = htmlspecialchars($text);
+    //echo ("\n out =".$text);
     return $text;
 }
 
@@ -641,6 +642,9 @@ function htmltodocx_insert_html_recursive(&$phpword_element, $html_dom_array, &$
                     $src = htmltodocx_doc_root() . $state['base_path'] . $element_src;
                 }
 
+                if(isset($state['url_callback']) && is_callable($state['url_callback'])){
+                    $src = $state['url_callback']($element);
+                }
                 $phpword_element->addImage($src, $state['current_style']);
 
                 break;
