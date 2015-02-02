@@ -114,6 +114,10 @@ function htmltodocx_styles_example()
             'text-decoration: underline' => array(
                 'underline' => Font::UNDERLINE_SINGLE,
             ),
+            'text-decoration: line-through' => array(
+                'strikethrough' => true,
+            ),
+
             'vertical-align: left'       => array(
                 'align' => 'left',
             ),
@@ -123,6 +127,19 @@ function htmltodocx_styles_example()
             'vertical-align: right'      => array(
                 'align' => 'right',
             ),
+
+            'text-align: center'      => array(
+                'align' => 'center',
+            ),
+
+            'text-align: left'      => array(
+                'align' => 'left',
+            ),
+
+            'text-align: right'      => array(
+                'align' => 'right',
+            ),
+
         );
 
     return $styles;

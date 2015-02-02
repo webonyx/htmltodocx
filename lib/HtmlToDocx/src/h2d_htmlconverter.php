@@ -41,7 +41,7 @@ function htmltodocx_html_allowed_children($tag = NULL)
         'h6'     => array('a', 'em', 'i', 'strong', 'b', 'br', 'span', 'code', 'u', 'sup', 'text'),
         'p'      => array('a', 'em', 'i', 'strong', 'b', 'ul', 'ol', 'img', 'table', 'br', 'span', 'code', 'u', 'sup', 'text', 'div', 'p'), // p does not nest - simple_html_dom will create a flat set of paragraphs if it finds nested ones.
         'div'    => array('a', 'em', 'i', 'strong', 'b', 'ul', 'ol', 'img', 'table', 'br', 'span', 'code', 'u', 'sup', 'text', 'div', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'),
-        'a'      => array('text'), // PHPWord doesn't allow elements to be placed in link elements
+        'a'      => array('text', 'img'), // PHPWord doesn't allow elements to be placed in link elements
         'em'     => array('a', 'strong', 'b', 'br', 'span', 'code', 'u', 'sup', 'text'), // Italic
         'i'      => array('a', 'strong', 'b', 'br', 'span', 'code', 'u', 'sup', 'text'), // Italic
         'strong' => array('a', 'em', 'i', 'br', 'span', 'code', 'u', 'sup', 'text'), // Bold
@@ -95,6 +95,7 @@ function htmltodocx_clean_text($text)
     // Convert entities:
     //$text = html_entity_decode($text, ENT_COMPAT, 'UTF-8');
     $text = htmlspecialchars($text);
+    $text = str_replace('&amp;','&', $text);
     //echo ("\n out =".$text);
     return $text;
 }
@@ -161,6 +162,10 @@ function _htmltodocx_get_style($element, $state)
             $style_pair = explode(':', $inline_style);
             $inline_style_list[] = trim($style_pair[0]) . ': ' . trim($style_pair[1]);
         }
+    }
+
+    if (!empty($element->attr['align'])) {
+            $inline_style_list[] =   'text-align: '.trim($element->attr['align']);
     }
 
     // Look for style definitions of these inline styles:
@@ -286,11 +291,8 @@ function htmltodocx_insert_html_recursive(&$phpword_element, $html_dom_array, &$
 
     // Go through each element:
     foreach ($html_dom_array as $element) {
-
         $old_style = $state['current_style'];
-
         $state['current_style'] = _htmltodocx_get_style($element, $state);
-
         switch ($element->tag) {
 
             case 'p':
@@ -453,13 +455,21 @@ function htmltodocx_insert_html_recursive(&$phpword_element, $html_dom_array, &$
                 }
                 if ($state['context'] == 'section') {
 
-                    if (strpos($element->href, 'http://') === 0) {
+                    if (strpos($element->href, 'http://') === 0 || strpos($element->href, 'https://') === 0) {
                         $href = $element->href;
                     } elseif (strpos($element->href, '/') === 0) {
                         $href = $state['base_root'] . $element->href;
                     } else {
                         $href = $state['base_root'] . $state['base_path'] . $element->href;
                     }
+
+                    array_unshift($state['parents'], $element->tag);
+                    foreach($element->nodes as $node){
+                        if($node->tag=='img'){
+                            htmltodocx_insert_html_recursive($phpword_element, [$node], $state);
+                        }
+                    }
+                    array_shift($state['parents']);
                     // Replace any spaces in url with %20 - to prevent errors in the Word
                     // document:
                     $state['textrun']->addLink(htmltodocx_url_encode_chars($href), htmltodocx_clean_text($element->innertext), $state['current_style']);
@@ -618,7 +628,6 @@ function htmltodocx_insert_html_recursive(&$phpword_element, $html_dom_array, &$
                 break;
 
             case 'img':
-                $image_style = array();
                 if ($element->height && $element->width) {
                     $state['current_style']['height'] = $element->height;
                     $state['current_style']['width'] = $element->width;
@@ -632,7 +641,7 @@ function htmltodocx_insert_html_recursive(&$phpword_element, $html_dom_array, &$
                     $element_src = $element->src;
                 }
 
-                if (strpos($element_src, 'http://') === 0) {
+                if (strpos($element_src, 'http://') === 0 || strpos($element_src, 'https://') === 0) {
                     // The image url is from another site. Most probably the image won't
                     // appear in the Word document.
                     $src = $element_src;
@@ -645,7 +654,17 @@ function htmltodocx_insert_html_recursive(&$phpword_element, $html_dom_array, &$
                 if(isset($state['url_callback']) && is_callable($state['url_callback'])){
                     $src = $state['url_callback']($element);
                 }
+
+
+                if(isset($state['current_style']['inline_with_text'])
+                    && $state['current_style']['inline_with_text']){
+                    if(!isset($state['textrun'])){
+                        $state['textrun'] = $phpword_element->createTextRun();
+                    }
+                    $state['textrun']->addImage($src, $state['current_style']);
+                }else{
                 $phpword_element->addImage($src, $state['current_style']);
+                }
 
                 break;
 
