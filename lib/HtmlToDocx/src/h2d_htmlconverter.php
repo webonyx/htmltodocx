@@ -95,7 +95,7 @@ function htmltodocx_clean_text($text)
     // Convert entities:
     //$text = html_entity_decode($text, ENT_COMPAT, 'UTF-8');
     $text = htmlspecialchars($text);
-    $text = str_replace('&amp;','&', $text);
+    $text = str_replace('&amp;', '&', $text);
     //echo ("\n out =".$text);
     return $text;
 }
@@ -165,7 +165,7 @@ function _htmltodocx_get_style($element, $state)
     }
 
     if (!empty($element->attr['align'])) {
-            $inline_style_list[] =   'text-align: '.trim($element->attr['align']);
+        $inline_style_list[] = 'text-align: ' . trim($element->attr['align']);
     }
 
     // Look for style definitions of these inline styles:
@@ -464,8 +464,8 @@ function htmltodocx_insert_html_recursive(&$phpword_element, $html_dom_array, &$
                     }
 
                     array_unshift($state['parents'], $element->tag);
-                    foreach($element->nodes as $node){
-                        if($node->tag=='img'){
+                    foreach ($element->nodes as $node) {
+                        if ($node->tag == 'img') {
                             htmltodocx_insert_html_recursive($phpword_element, [$node], $state);
                         }
                     }
@@ -628,10 +628,6 @@ function htmltodocx_insert_html_recursive(&$phpword_element, $html_dom_array, &$
                 break;
 
             case 'img':
-                if ($element->height && $element->width) {
-                    $state['current_style']['height'] = $element->height;
-                    $state['current_style']['width'] = $element->width;
-                }
 
                 if (strpos($element->src, $state['base_root']) === 0) {
                     // The image source is a full url, but nevertheless it is on this
@@ -651,19 +647,24 @@ function htmltodocx_insert_html_recursive(&$phpword_element, $html_dom_array, &$
                     $src = htmltodocx_doc_root() . $state['base_path'] . $element_src;
                 }
 
-                if(isset($state['url_callback']) && is_callable($state['url_callback'])){
+                if (isset($state['url_callback']) && is_callable($state['url_callback'])) {
                     $src = $state['url_callback']($element);
                 }
 
+                if ($element->height && $element->width) {
+                    $state['current_style']['height'] = $element->height;
+                    $state['current_style']['width'] = $element->width;
+                }
 
-                if(isset($state['current_style']['inline_with_text'])
-                    && $state['current_style']['inline_with_text']){
-                    if(!isset($state['textrun'])){
+                if (isset($state['current_style']['inline_with_text'])
+                    && $state['current_style']['inline_with_text']
+                ) {
+                    if (!isset($state['textrun'])) {
                         $state['textrun'] = $phpword_element->createTextRun();
                     }
                     $state['textrun']->addImage($src, $state['current_style']);
-                }else{
-                $phpword_element->addImage($src, $state['current_style']);
+                } else {
+                    $phpword_element->addImage($src, $state['current_style']);
                 }
 
                 break;
