@@ -12,7 +12,7 @@
   "keywords": [
     "html to docx word phpword h2d htmltodocx"
   ],
-  "target-dir": "webonyx/htmltodocx",
+  "target-dir": "htmltodocx",
 
   "autoload": {
     "classmap": ["lib/HtmlToDocx/"]
