@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "name": "webonyx/htmltodocx",
-  "description": "Finctions for help PHPWord to convert html to docx",
+  "name": "dblazeski/htmltodocx",
+  "description": "Finctions for help PHPWord to convert html to docx. This is a fork of webonyx/htmltodocx",
   "type": "",
   "authors": [
     {
