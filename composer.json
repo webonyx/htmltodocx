@@ -11,9 +11,6 @@
   "keywords": [
     "html to docx word phpword h2d htmltodocx"
   ],
-  "require": {
-    "phpoffice/phpword": "0.12.0"
-  },
   "target-dir": "webonyx/htmltodocx",
 
   "autoload": {
