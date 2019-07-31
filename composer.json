@@ -12,7 +12,7 @@
     "html to docx word phpword h2d htmltodocx"
   ],
   "require": {
-    "phpoffice/phpword": "^0.16"
+    "phpoffice/phpword": "^0.12"
   },
   "target-dir": "webonyx/htmltodocx",
 
